@@ -3,12 +3,13 @@ variables:
   pd_project: HelloQt
 
 jobs:
-- job: Windows_64 
+- job: Windows_64
   variables:
     hq_configuration: Release
     hq_platform: x64
     hq_bit: 64
     hq_build_dir: build$(hq_bit)
+  timeoutInMinutes: 0
   pool:
     vmImage: 'vs2017-win2016'
   steps:
