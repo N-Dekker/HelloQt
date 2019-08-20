@@ -1,6 +1,6 @@
 variables:
   # All variables of this project start with "pd_", by convention.
-  pd_project: HelloQt
+  hq_project: HelloQt
 
 jobs:
 - job: Windows_64
