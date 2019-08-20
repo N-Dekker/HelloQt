@@ -32,7 +32,8 @@ endif()
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
+# Require (at least) the Qt version provided by vcpkg.
+find_package(Qt5 5.12.3 COMPONENTS Core Gui REQUIRED)
 
 add_executable(${PROJECT_NAME}
 	${PROJECT_NAME}.cpp)
