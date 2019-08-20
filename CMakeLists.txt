@@ -33,7 +33,7 @@ endif()
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Require (at least) the Qt version provided by vcpkg.
-find_package(Qt5 5.12.3 COMPONENTS Core Gui REQUIRED)
+find_package(Qt5 5.12.3 COMPONENTS Core Gui Widgets REQUIRED)
 
 add_executable(${PROJECT_NAME}
 	${PROJECT_NAME}.cpp)
@@ -41,4 +41,5 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
 	Qt5::Core
 	Qt5::Gui
+	Qt5::Widgets
 )
