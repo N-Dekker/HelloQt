@@ -13,29 +13,36 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
-    - script: |
-        cd /d C:\vcpkg
-        git log -1
-        git pull
-        git log -1
-        .\bootstrap-vcpkg.bat
-      displayName: git pull vcpkg and bootstrap-vcpkg
-    - script: |
-        set VCPKG_DEFAULT_TRIPLET=x64-windows
-        C:\vcpkg\vcpkg.exe install qt5
-        C:\vcpkg\vcpkg.exe integrate install
-      displayName: vcpkg install Qt5 and integrate
-    - task: CMake@1
-      displayName: 'CMake Generate'
-      inputs:
-        cmakeArgs: -G "Visual Studio 15 2017 Win64" -S .. "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
-        workingDirectory: "$(HQ_BUILD_DIR)"
-    - task: MSBuild@1
-      displayName: 'MSBuild'
-      inputs:
-        solution: '$(HQ_BUILD_DIR)/ALL_BUILD.vcxproj'
-        configuration: $(HQ_CONFIGURATION)
-        msbuildArguments: /p:VcpkgEnabled=true
-    - script: |
-        %HQ_BUILD_DIR%\%HQ_CONFIGURATION%\%HQ_PROJECT%.exe
-      displayName: Run it now
+  - task: CacheBeta@0
+    inputs:
+      key: $(Agent.OS) | vcpkg | 20190827
+      path: $(VCPKG_INSTALLATION_ROOT)
+      cacheHitVar: CACHE_VCPKG_RESTORED
+      displayName: Cache vcpkg libraries  
+  - script: |
+      cd /d C:\vcpkg
+      git log -1
+      git pull
+      git log -1
+      call .\bootstrap-vcpkg.bat
+      set VCPKG_DEFAULT_TRIPLET=x64-windows
+      C:\vcpkg\vcpkg.exe install qt5
+    displayName: git pull vcpkg, bootstrap-vcpkg, install qt
+    condition: ne(variables.CACHE_RESTORED, 'true')
+  - script: |
+      C:\vcpkg\vcpkg.exe integrate install
+    displayName: vcpkg integrate
+  - task: CMake@1
+    displayName: 'CMake Generate'
+    inputs:
+      cmakeArgs: -G "Visual Studio 15 2017 Win64" -S .. "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      workingDirectory: "$(HQ_BUILD_DIR)"
+  - task: MSBuild@1
+    displayName: 'MSBuild'
+    inputs:
+      solution: '$(HQ_BUILD_DIR)/ALL_BUILD.vcxproj'
+      configuration: $(HQ_CONFIGURATION)
+      msbuildArguments: /p:VcpkgEnabled=true
+  - script: |
+      %HQ_BUILD_DIR%\%HQ_CONFIGURATION%\%HQ_PROJECT%.exe
+    displayName: Run it now
